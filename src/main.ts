@@ -1,13 +1,13 @@
 declare const module: any;
 
+// 验证逻辑，版本控制
+import { ValidationPipe, VersioningType, VERSION_NEUTRAL } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 // 切换成Fastify的内核
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-// 版本控制
-import { VersioningType, VERSION_NEUTRAL } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { AllExceptionsFilter } from './common/exceptions/base.exception.filter';
@@ -28,6 +28,9 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformInterceptor());
   // 全局异常过滤器, 注意自定义异常的先后顺序，先全局错误后Http错误
   app.useGlobalFilters(new AllExceptionsFilter(), new HttpExceptionFilter());
+
+  // 启动全局字段校验，保证接口请求字段校验正确
+  app.useGlobalPipes(new ValidationPipe());
 
   // 创建文档
   generateDocument(app);
